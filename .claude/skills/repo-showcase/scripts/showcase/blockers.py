@@ -85,7 +85,12 @@ def check_license(text: str, facts: RepoFacts) -> list[Finding]:
         )
         return [missing, mismatch]
 
-    detected = facts.license_key or ""
+    if facts.license_key is None:
+        # 파일은 봤지만 감지값은 조회하지 않았다(--offline). NOASSERTION과 다르다.
+        return [missing, Finding("license_mismatch", LOOKUP_FAILED, claims,
+                                 "라이선스 파일은 있으나 감지값을 조회하지 않아 대조하지 못했다.")]
+
+    detected = facts.license_key
     claimed = set()
     for c in claims:
         claimed |= _spdx_in(c.text)

@@ -84,3 +84,14 @@ def test_no_prerequisite_sentence_anywhere_is_a_blocker():
     fs = blockers.analyze(text, RepoFacts())
 
     assert find(fs, "prereq_unstated").state == "present"
+
+
+def test_offline_does_not_report_a_present_license_file_as_unidentified():
+    # --offline은 감지값을 조회하지 않는다. 그걸 NOASSERTION으로 옮기면
+    # 파일이 멀쩡한 레포에 jq식 경고(감지 실패)를 붙이게 된다.
+    facts = RepoFacts(has_license_file=True, license_key=None)
+
+    fs = blockers.analyze("# t\n\nMIT. See LICENSE.\n", facts)
+
+    assert find(fs, "license_missing").state == "absent"
+    assert find(fs, "license_mismatch").state == "lookup_failed"
