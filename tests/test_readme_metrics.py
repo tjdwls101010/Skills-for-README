@@ -45,3 +45,30 @@ def test_headings_inside_a_code_block_are_not_headings():
     m = readme_metrics.analyze(text)
 
     assert [(h.line, h.text) for h in m.headings] == [(1, "Real"), (8, "Also real")]
+
+
+def test_setext_headings_are_headings():
+    # junegunn/fzf를 비롯해 코퍼스 73개 중 31개가 밑줄식 헤딩을 쓴다.
+    # `#`만 찾으면 fzf의 Installation을 통째로 놓치고, 코드 블록 안의
+    # `# 주석`을 대신 집어 든다.
+    text = ("Installation\n"
+            "------------\n"
+            "\n"
+            "brew install fzf\n"
+            "\n"
+            "Title\n"
+            "=====\n")
+
+    m = readme_metrics.analyze(text)
+
+    assert [(h.line, h.level, h.text) for h in m.headings] == [
+        (1, 2, "Installation"), (6, 1, "Title")]
+    assert m.install_heading_line == 1
+
+
+def test_a_horizontal_rule_is_not_a_setext_heading():
+    text = "# t\n\nsome prose\n\n---\n\nmore prose\n"
+
+    m = readme_metrics.analyze(text)
+
+    assert [h.text for h in m.headings] == ["t"]

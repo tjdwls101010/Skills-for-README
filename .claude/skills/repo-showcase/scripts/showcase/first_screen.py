@@ -55,7 +55,15 @@ COMPARISON_PATTERNS = (
     r"(.+?)\s*의 대안\b",
 )
 
-_PROSE_SKIP = re.compile(r"^\s*(?:[#>\-*+]|\d+\.|\||!\[|<img|<p|<div|<a\b|\[!\[|`{3}|~{3}|<!--)")
+# 목록·인용·표·이미지로 시작하는 문단은 한 줄 정의가 아니다. 다만 `-*+`는 뒤에
+# 공백이 와야 목록이다 — `*fd* is a ...`를 목록으로 읽으면 정의를 통째로 건너뛴다.
+_PROSE_SKIP = re.compile(
+    r"^\s*(?:[#>|]|[-*+]\s|\d+\.\s|!\[|\[!\[|`{3}|~{3}|<!--)")
+# 태그를 걷어낸 뒤에도 문장이 남는지 본다. 인기 레포는 로고·배지와 한 문장을
+# <p align="center"> 안에 함께 넣는다.
+_TAG = re.compile(r"<[^>]+>")
+_MD_LINK = re.compile(r"\[([^\]]+)\]\([^)]*\)")
+_MD_EMPH = re.compile(r"[*_`]{1,3}")
 
 
 def _paragraphs(text: str) -> list[tuple[int, str]]:
@@ -72,23 +80,43 @@ def _paragraphs(text: str) -> list[tuple[int, str]]:
     return out
 
 
+def _plain(body: str) -> str:
+    """이미지·태그·링크 표기를 걷어낸 문장. 링크는 표시되는 글자만 남긴다."""
+    s = re.sub(r"\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\)", " ", body)
+    s = _TAG.sub(" ", s)
+    s = _MD_LINK.sub(r"\1", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
 def find_one_liner(text: str) -> OneLiner | None:
-    """제목 다음의 첫 산문 문단. 배지 줄·이미지·목록·인용은 건너뛴다."""
+    """제목 다음의 첫 산문 문단. 배지·이미지·목록·인용·목차는 건너뛴다."""
     for line, body in _paragraphs(text):
         if _PROSE_SKIP.match(body):
             continue
-        stripped = re.sub(r"\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)|!\[[^\]]*\]\([^)]*\)", "", body).strip()
-        if not stripped:
+        plain = _plain(body)
+        # 태그를 걷어내고 남은 것이 낱말 몇 개뿐이면 목차나 배지 줄이다.
+        if len(plain.split()) < 4 or not re.search(r"[.!?]|\w{3,}\s+\w{3,}\s+\w{3,}", plain):
             continue
-        return OneLiner(line, stripped, len(stripped), find_alternatives(stripped))
+        offset = _paragraph_line_of(text, line, plain)
+        return OneLiner(offset, plain, len(plain), find_alternatives(plain))
     return None
+
+
+def _paragraph_line_of(text: str, start: int, plain: str) -> int:
+    """문단 안에서 실제 문장이 시작하는 줄. HTML 헤더는 여는 태그가 아니라 문장 줄을 가리킨다."""
+    first_word = plain.split()[0].strip("*_`")
+    lines = text.splitlines()
+    for i in range(start - 1, min(start + 8, len(lines))):
+        if first_word and first_word in _plain(lines[i]):
+            return i + 1
+    return start
 
 
 def find_alternatives(sentence: str) -> list[str]:
     out = []
     for pat in COMPARISON_PATTERNS:
         for m in re.finditer(pat, sentence, re.I):
-            name = m.group(1).strip().strip("`\"'*_ ")
+            name = _plain(m.group(1)).strip().strip("`\"'*_ .,")
             # 절 하나보다 길면 도구 이름이 아니라 설명이다.
             if name and len(name.split()) <= 4 and name.lower() not in out:
                 out.append(name.lower())

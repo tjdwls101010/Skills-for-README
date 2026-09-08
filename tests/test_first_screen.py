@@ -66,3 +66,40 @@ def test_a_blocking_prerequisite_stated_after_the_install_command_is_recorded_as
     assert sp.command_lines == [39]
     assert sp.prereq_lines == [44]
     assert sp.expected_result_lines == []
+
+
+def test_an_emphasised_first_word_is_not_a_list_bullet():
+    # sharkdp/fd 초기 README 4~5번째 줄. `*fd* is a ...`를 목록 항목으로 읽으면
+    # 한 줄 정의를 통째로 건너뛰고 뒤 문단을 정의로 잡는다.
+    text = ("# fd\n"
+            "[![Build Status](https://travis-ci.org/sharkdp/fd.svg)](https://travis-ci.org/sharkdp/fd)\n"
+            "\n"
+            "*fd* is a simple, fast and user-friendly alternative to\n"
+            "[*find*](https://www.gnu.org/software/findutils/).\n"
+            "\n"
+            "While it does not seek to mirror all of *find*'s functionality, it provides\n"
+            "sensible defaults.\n")
+
+    ol = first_screen.analyze(text).one_liner
+
+    assert ol.line == 4
+    assert ol.alternatives == ["find"]
+
+
+def test_a_tagline_inside_a_centered_html_header_is_the_one_liner():
+    # sharkdp/bat 초기 README. 인기 레포가 흔히 쓰는 형태로, <p align="center"> 안에
+    # 로고·배지와 함께 한 문장이 들어 있다. 태그만 보고 건너뛰면 정의를 놓친다.
+    text = ('<p align="center">\n'
+            '  <img src="doc/logo-header.svg" alt="bat - a cat clone with wings"><br>\n'
+            '  <img src="https://img.shields.io/crates/l/bat.svg" alt="license">\n'
+            '  A <i>cat(1)</i> clone with syntax highlighting and Git integration.\n'
+            '</p>\n'
+            '\n'
+            '<p align="center">\n'
+            '  <a href="#installation">Installation</a>\n'
+            '</p>\n')
+
+    ol = first_screen.analyze(text).one_liner
+
+    assert ol.text == "A cat(1) clone with syntax highlighting and Git integration."
+    assert ol.alternatives == ["cat(1)"]

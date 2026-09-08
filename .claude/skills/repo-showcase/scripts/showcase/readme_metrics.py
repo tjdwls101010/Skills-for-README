@@ -62,12 +62,32 @@ def _norm(s: str) -> str:
 
 
 def parse_headings(text: str) -> list[Heading]:
+    """ATX(`## X`)와 밑줄식(setext) 헤딩 둘 다. 코퍼스 73개 중 31개가 밑줄식을 쓴다."""
+    lines = _code_masked_lines(text)
     out = []
-    for i, raw in enumerate(_code_masked_lines(text), start=1):
+    for i, raw in enumerate(lines, start=1):
         m = re.match(r"^(#{1,6})\s+(.*?)\s*#*\s*$", raw)
         if m:
             out.append(Heading(i, len(m.group(1)), m.group(2).strip()))
+            continue
+        under = lines[i] if i < len(lines) else ""
+        if _is_setext_underline(under) and _is_setext_title(raw, lines, i):
+            out.append(Heading(i, 1 if under.strip()[0] == "=" else 2, raw.strip()))
     return out
+
+
+def _is_setext_underline(raw: str) -> bool:
+    return bool(re.match(r"^\s{0,3}(={3,}|-{3,})\s*$", raw))
+
+
+def _is_setext_title(raw: str, lines: list[str], i: int) -> bool:
+    """제목 줄이 되려면 문단의 첫 줄이어야 한다. 앞에 본문이 있으면 `---`는 구분선이다."""
+    if not raw.strip() or _PROSE_LIKE_SKIP.match(raw):
+        return False
+    return i - 2 < 0 or not lines[i - 2].strip()
+
+
+_PROSE_LIKE_SKIP = re.compile(r"^\s*(?:[#>|]|[-*+]\s|\d+\.\s|!\[|\[!\[)")
 
 
 def _code_masked_lines(text: str) -> list[str]:
