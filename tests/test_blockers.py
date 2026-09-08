@@ -48,13 +48,40 @@ def test_a_start_path_that_only_works_on_the_owners_machine():
     assert "192.168.3.116" in start.evidence[0].text
 
 
-def test_a_feature_used_as_an_example_and_listed_as_planned_stops_the_reader():
+def test_a_feature_used_as_an_example_and_listed_as_planned_is_surfaced_to_read():
     # autoflow·mcp-re 패턴: 9번째 줄 예제의 email 싱크가 23번째 줄에서는 예정 기능이다.
+    # 낱말이 겹친다는 것만으로 모순을 단정하지 않는다 — 읽어 볼 두 곳을 짚어 준다.
     fs = blockers.analyze(fixture_text("synthetic_contradiction.md"), RepoFacts())
 
     clash = find(fs, "status_contradiction")
-    assert clash.state == "present"
+    assert clash.state == "undetermined"
     assert [e.line for e in clash.evidence] == [9, 23]
+
+
+def test_the_projects_own_name_is_not_a_feature_name():
+    # 실제 오탐 2단계: 흔한 낱말을 걸러내자 이번엔 레포 이름 `agentic-x`가 맞았다.
+    # 도구 이름은 모든 예제에 나오므로 어떤 로드맵 문장과도 항상 겹친다.
+    text = ("# t\n\n"
+            "```bash\nagentic-x login\n```\n\n"
+            "```bash\nagentic-x search foo\n```\n\n"
+            "`likers` is planned. Use agentic-x search instead.\n")
+
+    fs = blockers.analyze(text, RepoFacts())
+
+    assert find(fs, "status_contradiction").state == "absent"
+
+
+def test_a_generic_word_shared_by_an_example_and_a_roadmap_is_not_flagged():
+    # 실제 오탐: "the one this README gave"의 `one`이 예제의 "One-time login"과
+    # 맞아 결손 묶음에 없는 모순이 들어갔다.
+    text = ("# t\n\n"
+            "```bash\n# 1. One-time interactive login\nt login\n```\n\n"
+            "`likers` is not implemented. Note that the reason is not the one "
+            "this README gave until v0.5.0.\n")
+
+    fs = blockers.analyze(text, RepoFacts())
+
+    assert find(fs, "status_contradiction").state == "absent"
 
 
 def test_a_roadmap_of_features_never_used_as_examples_is_not_a_contradiction():

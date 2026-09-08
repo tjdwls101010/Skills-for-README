@@ -158,6 +158,8 @@ def check_status_contradiction(text: str) -> Finding:
     ev = []
     for i, raw in planned:
         for name in _feature_names(raw):
+            if _is_ubiquitous(name, blocks):
+                continue
             for b in blocks:
                 if b.line < i and re.search(rf"\b{re.escape(name)}\b", b.body, re.I):
                     ev.append(Line(b.line, b.body.splitlines()[0].strip()))
@@ -169,16 +171,53 @@ def check_status_contradiction(text: str) -> Finding:
             break
     if not ev:
         return Finding("status_contradiction", ABSENT)
-    return Finding("status_contradiction", PRESENT, ev,
-                   "예제에서 쓰는 기능이 뒤에서는 예정 기능이다. 모순 하나가 나머지 문서의 신뢰를 멈춘다.")
+    # 낱말이 겹친다는 것이 모순의 증거는 아니다. 이 검사는 읽어 볼 두 곳을
+    # 짚어 줄 뿐이고, 모순인지는 두 문장을 읽어야 안다. present로 단정하면
+    # 가장 높은 우선순위 묶음에 오탐이 들어간다.
+    return Finding("status_contradiction", UNDETERMINED, ev,
+                   "예정이라고 적힌 것과 예제가 같은 낱말을 쓴다. 두 곳을 읽고 "
+                   "모순인지 판정한다 — 모순이면 하나가 나머지 문서의 신뢰를 멈춘다.")
+
+
+# 기능 이름이 될 수 없는 낱말. 이걸 걸러내지 않으면 "the one this README gave"의
+# `one`이 예제의 "One-time login"과 맞아 없는 모순을 만들어 낸다 — 실제로 그랬다.
+_COMMON_WORDS = {
+    "planned", "implemented", "soon", "coming", "roadmap", "todo", "sink", "support",
+    "about", "after", "again", "all", "also", "and", "any", "are", "back", "because",
+    "been", "before", "being", "both", "but", "can", "cannot", "case", "does", "done",
+    "down", "each", "even", "every", "example", "first", "for", "found", "from", "gave",
+    "gone", "had", "has", "have", "here", "how", "into", "its", "just", "like", "made",
+    "make", "many", "more", "most", "much", "must", "need", "new", "next", "nothing",
+    "not", "note", "now", "off", "one", "only", "other", "out", "over", "own", "readme",
+    "reason", "return", "returns", "same", "see", "she", "should", "since", "some",
+    "still", "such", "than", "that", "the", "their", "them", "then", "there", "these",
+    "they", "this", "those", "through", "time", "two", "under", "until", "use", "used",
+    "uses", "using", "very", "was", "way", "were", "what", "when", "where", "which",
+    "while", "who", "why", "will", "with", "without", "would", "yet", "you", "your",
+}
+
+
+def _is_ubiquitous(name: str, blocks) -> bool:
+    """예제 대부분에 나오는 낱말은 기능 이름이 아니라 도구 이름이다.
+    (레포 이름이 모든 명령의 첫 낱말이라 그대로 두면 항상 걸린다.)"""
+    if len(blocks) < 2:
+        return False
+    hits = sum(1 for b in blocks if re.search(rf"\b{re.escape(name)}\b", b.body, re.I))
+    return hits * 2 > len(blocks)
 
 
 def _feature_names(raw: str) -> list[str]:
-    """예정 항목에서 기능 이름으로 쓸 만한 소문자 낱말. 흔한 낱말은 뺀다."""
-    stop = {"planned", "for", "the", "a", "an", "not", "yet", "implemented", "soon",
-            "coming", "sink", "support", "and", "or", "in", "to", "roadmap", "wip", "todo"}
-    words = re.findall(r"[A-Za-z][A-Za-z0-9_-]{2,}", raw)
-    return [w for w in (x.lower() for x in words) if w not in stop]
+    """예정 항목이 가리키는 기능의 이름.
+
+    문장에 나온 모든 낱말이 후보가 아니다. "`likers` is planned. Use agentic-x
+    search instead."에서 예정된 것은 `likers`이고 `search`는 우회 방법이다.
+    그래서 백틱이 있으면 그것만 믿고, 없으면 첫 후보 하나만 쓴다."""
+    backticked = [w.lower() for w in re.findall(r"`([A-Za-z][\w.-]*)`", raw)]
+    if backticked:
+        return backticked
+    words = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z0-9_-]{3,}", raw)]
+    rest = [w for w in words if w not in _COMMON_WORDS]
+    return rest[:1]
 
 
 def check_prereq(text: str) -> Finding:
