@@ -1,0 +1,58 @@
+[
+  {
+    "repo": "httpie/cli",
+    "orig_len": 138,
+    "shown_len": 137,
+    "truncated": false,
+    "shown": "🥧 HTTPie CLI — modern, user-friendly command-line HTTP client for the API era. JSON support, colors, sessions, downloads, plugins & more."
+  },
+  {
+    "repo": "tjdwls101010/Codex-in-Claude",
+    "orig_len": 178,
+    "shown_len": 138,
+    "truncated": true,
+    "shown": "Run OpenAI Codex as a managed subagent from Claude Code — background runs, a filtered live event log, stop-and-redirect, thread resume, a…"
+  },
+  {
+    "repo": "affaan-m/ECC",
+    "orig_len": 171,
+    "shown_len": 138,
+    "truncated": true,
+    "shown": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, C…"
+  },
+  {
+    "repo": "arcboxlabs/arcbox",
+    "orig_len": 141,
+    "shown_len": 138,
+    "truncated": true,
+    "shown": "Run AI agents on real and isolated machines — own kernel, filesystem, and network — with <100ms boot. Local first, OCI compatible, pure R…"
+  },
+  {
+    "repo": "coldteadotai/pr-lens",
+    "orig_len": 206,
+    "shown_len": 138,
+    "truncated": true,
+    "shown": "Review code 100X faster. Lens draws every PR as animated architecture and data-flow walkthroughs, inside the pull request itself. Use it …"
+  },
+  {
+    "repo": "headroomlabs-ai/headroom",
+    "orig_len": 185,
+    "shown_len": 138,
+    "truncated": true,
+    "shown": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 20% fewer tokens for coding agents, 60-95% fewer tokens for…"
+  },
+  {
+    "repo": "jo-inc/camofox-browser",
+    "orig_len": 135,
+    "shown_len": 135,
+    "truncated": false,
+    "shown": "Stealth headless browser for AI agents — bypass Cloudflare, bot detection, and anti-scraping. Drop-in Puppeteer/Playwright replacement."
+  },
+  {
+    "repo": "mksglu/context-mode",
+    "orig_len": 173,
+    "shown_len": 138,
+    "truncated": true,
+    "shown": "Context window optimization for AI coding agents. Sandboxes tool output (98% reduction), persists session memory, and enforces routing ac…"
+  }
+]

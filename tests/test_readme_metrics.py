@@ -1,0 +1,85 @@
+"""README 텍스트 → 구조 지표. 기대값은 픽스처 파일을 직접 읽어 센 줄 번호다."""
+from conftest import fixture_text
+
+from showcase import readme_metrics
+
+
+def test_install_heading_found_when_written_in_korean():
+    # tjdwls101010/Ultra-Search: "## 설치"가 17번째 줄. 수집 단계 스크립트는
+    # 영어 헤딩만 봐서 이걸 놓쳤다(코덱스 발견 버그 a).
+    m = readme_metrics.analyze(fixture_text("tjdwls101010__Ultra-Search.md"))
+
+    assert m.install_heading_line == 17
+
+
+def test_mermaid_fence_is_not_the_first_code_block():
+    # synthetic_low_traction.md: 12번째 줄이 ```mermaid, 31번째 줄이 ```yaml.
+    # 다이어그램은 실행할 수 있는 명령이 아니므로 첫 코드 줄이 아니다
+    # (코덱스 발견 버그 b). 설정 예제인 yaml은 코드로 센다.
+    m = readme_metrics.analyze(fixture_text("synthetic_low_traction.md"))
+
+    assert m.first_code_line == 31
+    assert [c.lang for c in m.code_blocks] == ["yaml", "bash"]
+
+
+def test_badge_is_not_counted_as_result_evidence():
+    # 배지·로고와 "결과를 보여주는 이미지"는 방문자에게 다른 답을 준다.
+    # synthetic_low_traction.md의 3번째 줄은 shields.io 배지뿐이다.
+    m = readme_metrics.analyze(fixture_text("synthetic_low_traction.md"))
+
+    assert m.badges == 1
+    assert m.first_result_image_line is None
+
+
+def test_demo_gif_counts_as_a_result_image():
+    # synthetic_early_classic.md의 5번째 줄은 실행 결과를 담은 GIF다.
+    m = readme_metrics.analyze(fixture_text("synthetic_early_classic.md"))
+
+    assert m.badges == 0
+    assert m.first_result_image_line == 5
+
+
+def test_headings_inside_a_code_block_are_not_headings():
+    text = "# Real\n\n```bash\n# not a heading\necho hi\n```\n\n## Also real\n"
+
+    m = readme_metrics.analyze(text)
+
+    assert [(h.line, h.text) for h in m.headings] == [(1, "Real"), (8, "Also real")]
+
+
+def test_setext_headings_are_headings():
+    # junegunn/fzf를 비롯해 코퍼스 73개 중 31개가 밑줄식 헤딩을 쓴다.
+    # `#`만 찾으면 fzf의 Installation을 통째로 놓치고, 코드 블록 안의
+    # `# 주석`을 대신 집어 든다.
+    text = ("Installation\n"
+            "------------\n"
+            "\n"
+            "brew install fzf\n"
+            "\n"
+            "Title\n"
+            "=====\n")
+
+    m = readme_metrics.analyze(text)
+
+    assert [(h.line, h.level, h.text) for h in m.headings] == [
+        (1, 2, "Installation"), (6, 1, "Title")]
+    assert m.install_heading_line == 1
+
+
+def test_a_horizontal_rule_is_not_a_setext_heading():
+    text = "# t\n\nsome prose\n\n---\n\nmore prose\n"
+
+    m = readme_metrics.analyze(text)
+
+    assert [h.text for h in m.headings] == ["t"]
+
+
+def test_a_text_fence_is_a_code_block():
+    # ```text 는 명령과 출력을 보여 주는 가장 흔한 표기다. 다이어그램과 함께
+    # 제외했더니 실제 결과 증거가 통째로 사라졌다.
+    text = "# t\n\n```text\n$ tool run\n0 errors\n```\n"
+
+    m = readme_metrics.analyze(text)
+
+    assert [c.lang for c in m.code_blocks] == ["text"]
+    assert m.first_code_line == 3
