@@ -69,3 +69,13 @@ def test_similar_projects_section_is_found_with_its_line():
 
 def test_a_readme_without_such_a_section_reports_none():
     assert similar.find_similar_section(fixture_text("synthetic_low_traction.md")) is None
+
+
+def test_a_korean_one_liner_does_not_become_an_empty_query():
+    # 라틴 문자만 뽑으면 한국어 한 줄 정의가 통째로 사라져 gh가 빈 검색어를 받는다.
+    assert similar.build_query("파일 변환 도구") == "파일 변환 도구"
+
+
+def test_short_identifiers_survive():
+    # "Go"·"jq"·"C#"는 두 글자여도 정체성 낱말이다.
+    assert similar.build_query("a CLI for Go", language="go") == "cli go language:go"

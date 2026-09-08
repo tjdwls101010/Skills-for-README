@@ -70,8 +70,9 @@ def test_offline_against_a_remote_target_is_a_usage_error():
     assert "--offline" in r.stderr
 
 
-def test_a_path_without_a_readme_is_unreachable(tmp_path):
-    r = run(AUDIT, str(tmp_path), "--offline")
+def test_a_nonexistent_target_is_unreachable():
+    # 종료 코드 3은 "대상에 닿지 못했다"이지 "README가 아직 없다"가 아니다.
+    r = run(AUDIT, "no-such-owner-xyz/no-such-repo-xyz")
 
     assert r.returncode == 3
 
@@ -80,3 +81,30 @@ def test_similar_repos_rejects_a_zero_limit():
     r = run(SIMILAR, "--query", "x", "--limit", "0")
 
     assert r.returncode == 2
+
+
+def test_compare_against_an_unreachable_repo_does_not_look_like_an_empty_repo(tmp_path):
+    # gh 조회가 실패했는데 topics가 [] 로 나오면 "topic이 없는 레포"와 구별되지 않고,
+    # missing_topics가 비어 있으니 제안할 것이 없다는 결론까지 나온다.
+    repo = make_repo(tmp_path, "synthetic_early_classic.md")
+
+    data = json.loads(run(AUDIT, str(repo), "--compare", "no-such-owner/no-such-repo-xyz",
+                          "--json").stdout)
+
+    assert data["compare"]["state"] == "lookup_failed"
+    assert data["compare"]["missing_topics"] is None
+    assert data["errors"]
+
+
+def test_a_repo_with_no_readme_yet_is_still_audited(tmp_path):
+    # README를 처음 쓰는 레포가 이 스킬의 주 대상이다. 종료 코드 3으로 끝나면
+    # 아무 판정도 못 받는다. README에서 오는 항목만 absent로 남는다.
+    (tmp_path / "LICENSE").write_text("MIT License\n")
+
+    r = run(AUDIT, str(tmp_path), "--offline", "--json")
+
+    assert r.returncode == 0
+    data = json.loads(r.stdout)
+    assert data["readme_path"] is None
+    assert {b["id"]: b["state"] for b in data["blockers"]}["license_missing"] == "absent"
+    assert {p["id"]: p["state"] for p in data["persuasion"]}["one_liner"] == "absent"

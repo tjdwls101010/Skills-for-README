@@ -21,10 +21,10 @@ def build(facts: RepoFacts, fetched: str, compare: dict | None = None) -> dict:
     text = facts.readme_text or ""
     m = readme_metrics.analyze(text)
     fs = first_screen.analyze(text)
-    found = blockers.analyze(text, facts) if text else [
-        blockers.Finding(i, blockers.LOOKUP_FAILED, [], "README를 읽지 못했다.")
-        for i in ("license_missing", "license_mismatch", "prereq_unstated",
-                  "start_path_unreproducible", "status_contradiction")]
+    # README가 비어 있어도 판정한다 — 라이선스는 파일에서 오고, README에서 오는
+    # 항목은 자연히 "없음"이 된다. 여기서 멈추면 README를 처음 쓰는 레포가
+    # 아무 판정도 받지 못한다.
+    found = blockers.analyze(text, facts)
 
     return {
         "target": facts.target,
@@ -129,8 +129,11 @@ def render_text(report: dict) -> str:
         L.append(f"[{f['state']:<13}] {f['id']}")
         if f["note"]:
             L.append(f"                {f['note']}")
-        for e in f["evidence"][:4]:
-            L.append(f"                {e['line']:>4}: {e['text'][:96]}")
+        # absent는 "확인했고 문제가 아니다"이다. 근거 줄을 함께 찍으면 그 줄이
+        # 문제인 것처럼 읽힌다. JSON에는 그대로 남는다.
+        if f["state"] != blockers.ABSENT:
+            for e in f["evidence"][:4]:
+                L.append(f"                {e['line']:>4}: {e['text'][:96]}")
     L.append("")
     L.append("## 설득력 개선")
     L.append("")

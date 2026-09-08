@@ -31,10 +31,13 @@ SIMILAR_HEADINGS = (
 
 def build_query(one_liner: str, topics: list[str] | None = None,
                 language: str | None = None) -> str:
-    words = [w for w in re.findall(r"[A-Za-z][A-Za-z0-9+.#-]*", one_liner.lower())]
-    kept = [w for w in words if w not in STOPWORDS and len(w) > 2]
+    """한 줄 정의에서 검색어를 만든다. 라틴 문자만 뽑으면 한국어·일본어 정의가
+    통째로 사라져 gh가 빈 검색어를 받는다. `Go`·`jq`처럼 두 글자인 정체성
+    낱말도 남긴다 — 길이로 거르면 언어 이름이 먼저 사라진다."""
+    words = re.findall(r"[^\W_][\w+.#-]*", one_liner.lower(), re.UNICODE)
+    kept = [w for w in words if w not in STOPWORDS and len(w) > 1]
     if len(kept) < 2:
-        kept = [w for w in words if len(w) > 2]
+        kept = [w for w in words if len(w) > 1]
     parts = kept[:6]
     parts += [f"topic:{t}" for t in (topics or [])]
     if language:

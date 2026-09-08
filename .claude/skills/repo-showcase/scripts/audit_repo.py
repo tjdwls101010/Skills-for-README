@@ -24,15 +24,20 @@ def build_parser() -> argparse.ArgumentParser:
             "개선 전후 비교에만 쓴다."
         ),
         epilog=(
-            "상태값: present(있음) / absent(확인했고 없음) / lookup_failed(조회 못 함) / "
-            "undetermined(자료는 있으나 읽어야 판정 가능). "
-            "종료 코드: 0 실행 성공(결손 유무와 무관), 2 인자 오류, 3 대상 접근 실패."
+            "상태값 present는 묶음마다 가리키는 것이 다르다 — blockers에서는 "
+            "'그 결손이 있다', persuasion에서는 '그 재료가 있다'. absent는 "
+            "'조회했고 없다', lookup_failed는 '조회하지 못해 모른다', "
+            "undetermined는 '자료는 있으나 읽어야 판정 가능'. "
+            "README가 아직 없는 레포도 판정한다(README에서 오는 항목만 absent). "
+            "종료 코드: 0 실행 성공(결손 유무와 무관), 2 인자 오류, "
+            "3 대상 접근 실패(경로 없음·gh 조회 실패)."
         ),
     )
     p.add_argument("target",
                    help="owner/repo (gh로 조회) 또는 로컬 경로 (파일시스템에서 읽음)")
     p.add_argument("--compare", metavar="OWNER/REPO",
-                   help="유사 프로젝트의 description·topics를 함께 조회해 어휘 정렬에 쓴다")
+                   help="유사 프로젝트의 description·topics만 조회해 어휘 대조에 쓴다. "
+                        "기능 비교나 PR 적합성 판단은 하지 않는다 — 그건 원문을 읽어야 한다")
     p.add_argument("--json", action="store_true",
                    help="사람용 보고 대신 JSON")
     p.add_argument("--offline", action="store_true",
@@ -64,18 +69,28 @@ def main(argv=None) -> int:
             print("\n".join(facts.errors), file=sys.stderr)
             return EXIT_UNREACHABLE
 
-    if facts.readme_text is None:
-        print("\n".join(facts.errors) or "README를 읽지 못했다", file=sys.stderr)
+    # README가 아직 없는 레포가 이 도구의 주 대상이다. 없다고 종료하면 처음
+    # 쓰는 사람이 아무 판정도 받지 못한다. README에서 오는 항목만 absent가 된다.
+    if facts.readme_text is None and not is_path and facts.description is None:
+        print("\n".join(facts.errors) or "대상에 접근하지 못했다", file=sys.stderr)
         return EXIT_UNREACHABLE
 
     compare = None
     if args.compare and not args.offline:
         other = github.from_remote(args.compare)
-        mine = set(facts.topics or [])
-        theirs = set(other.topics or [])
-        compare = {"repo": args.compare, "description": other.description,
-                   "topics": sorted(theirs), "shared_topics": sorted(mine & theirs),
-                   "missing_topics": sorted(theirs - mine)}
+        if other.topics is None:
+            # 조회 실패를 빈 topics로 흘리면 "topic 없는 레포"로 읽히고,
+            # missing_topics가 비어 제안할 것이 없다는 결론까지 나온다.
+            compare = {"repo": args.compare, "state": "lookup_failed",
+                       "description": None, "topics": None,
+                       "shared_topics": None, "missing_topics": None}
+            facts.errors.extend(other.errors)
+        else:
+            mine, theirs = set(facts.topics or []), set(other.topics)
+            compare = {"repo": args.compare, "state": "present",
+                       "description": other.description,
+                       "topics": sorted(theirs), "shared_topics": sorted(mine & theirs),
+                       "missing_topics": sorted(theirs - mine)}
 
     fetched = datetime.date.today().isoformat()
     data = report.build(facts, fetched, compare)
