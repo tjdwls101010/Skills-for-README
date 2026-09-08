@@ -32,6 +32,7 @@ class RepoFacts:
     contributing_paths: list[str] | None = None
     code_of_conduct_paths: list[str] | None = None
     releases_count: int | None = None
+    social_preview: bool | None = None
     readme_path: str | None = None
     readme_text: str | None = None
     errors: list[str] = field(default_factory=list)
@@ -75,6 +76,24 @@ def _find_readme(root: Path) -> Path | None:
     return None
 
 
+SOCIAL_PREVIEW_QUERY = (
+    "query($o:String!,$n:String!){repository(owner:$o,name:$n)"
+    "{usesCustomOpenGraphImage}}"
+)
+
+
+def has_custom_social_preview(target: str, runner=None) -> bool | None:
+    """소유자가 소셜 미리보기 이미지를 올렸는가. REST에는 이 사실이 없어 GraphQL로 묻는다."""
+    runner = runner or run_gh
+    owner, _, name = target.partition("/")
+    try:
+        data = json.loads(runner(["api", "graphql", "-f", f"query={SOCIAL_PREVIEW_QUERY}",
+                                  "-F", f"o={owner}", "-F", f"n={name}"]))
+        return bool(data["data"]["repository"]["usesCustomOpenGraphImage"])
+    except (GhError, ValueError, KeyError, TypeError):
+        return None
+
+
 def from_remote(target: str, runner=run_gh) -> RepoFacts:
     """owner/repo를 gh로 조회한다. 항목마다 따로 실패할 수 있어 따로 감싼다."""
     facts = RepoFacts(target=target)
@@ -110,6 +129,8 @@ def from_remote(target: str, runner=run_gh) -> RepoFacts:
             setattr(facts, f"{key_name}_paths", [entry["html_url"]] if entry else [])
     except (GhError, ValueError) as e:
         facts.errors.append(f"repos/{target}/community/profile: {e}")
+
+    facts.social_preview = has_custom_social_preview(target, runner)
 
     try:
         rels = json.loads(runner(["api", f"repos/{target}/releases", "--paginate"]))

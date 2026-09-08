@@ -166,6 +166,7 @@ def _feature_names(raw: str) -> list[str]:
 
 def check_prereq(text: str) -> Finding:
     sp = first_screen.find_start_path(text)
+    lines = text.splitlines()
     if not sp.command_lines:
         return Finding("prereq_unstated", UNDETERMINED, [],
                        "실행 명령이 없어 전제조건의 필요 여부를 판정할 수 없다.")
@@ -176,7 +177,7 @@ def check_prereq(text: str) -> Finding:
     late = [l for l in sp.prereq_lines if l > first_cmd]
     if late and not [l for l in sp.prereq_lines if l < first_cmd]:
         return Finding("prereq_unstated", UNDETERMINED,
-                       [Line(l, "") for l in late],
+                       [Line(l, lines[l - 1].strip()) for l in late],
                        f"전제조건이 첫 명령({first_cmd}번째 줄)보다 뒤에 있다. "
                        "도입을 막는 조건인지는 내용을 읽고 판정한다.")
     return Finding("prereq_unstated", ABSENT)
