@@ -122,16 +122,28 @@ PLANNED_PATTERNS = (
 )
 
 
+# 독자가 손으로 바꿔 넣어야 하는 자리. `<DIR>`처럼 낱말 하나짜리 옵션 표기는
+# 관례이므로 제외하고, `<this repo>`처럼 공백이 든 산문만 잡는다 — 그건 표기가
+# 아니라 "여기에 뭔가를 알아내서 넣어라"는 뜻이고, 첫 명령이 그대로 실패한다.
+PLACEHOLDER_PATTERN = r"<[^<>\n]*\s[^<>\n]*>"
+
+
 def check_start_path(text: str) -> Finding:
-    ev = []
+    ev, holes = [], []
     for b in readme_metrics.parse_code_blocks(text):
         for offset, raw in enumerate(b.body.splitlines(), start=1):
             if any(re.search(p, raw) for p in LOCAL_ONLY_PATTERNS):
                 ev.append(Line(b.line + offset, raw.strip()))
-    if not ev:
-        return Finding("start_path_unreproducible", ABSENT)
-    return Finding("start_path_unreproducible", PRESENT, ev,
-                   "명령이 소유자 기계에만 있는 주소·경로를 전제한다. 자리표시자로 바꾸거나 만드는 법을 적는다.")
+            elif re.search(PLACEHOLDER_PATTERN, raw):
+                holes.append(Line(b.line + offset, raw.strip()))
+    if ev:
+        return Finding("start_path_unreproducible", PRESENT, ev,
+                       "명령이 소유자 기계에만 있는 주소·경로를 전제한다. 자리표시자로 바꾸거나 만드는 법을 적는다.")
+    if holes:
+        return Finding("start_path_unreproducible", UNDETERMINED, holes,
+                       "명령에 독자가 채워야 하는 자리가 있다. 사용법 요약이면 괜찮고, "
+                       "따라 실행할 첫 명령이면 그대로 실패한다.")
+    return Finding("start_path_unreproducible", ABSENT)
 
 
 def check_status_contradiction(text: str) -> Finding:

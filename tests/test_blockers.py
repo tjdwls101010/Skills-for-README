@@ -95,3 +95,25 @@ def test_offline_does_not_report_a_present_license_file_as_unidentified():
 
     assert find(fs, "license_missing").state == "absent"
     assert find(fs, "license_mismatch").state == "lookup_failed"
+
+
+def test_a_command_with_a_placeholder_the_reader_must_substitute():
+    # 블라인드 판정자가 실제로 막힌 지점: `git clone <this repo>` 는 그대로
+    # 실행되지 않는다. 사설 IP만 찾으면 이 형태를 놓친다. 다만 사용법 요약의
+    # 자리표시자일 수도 있어 사람이 판정한다.
+    text = "# t\n\n## Install\n\n```bash\ngit clone <this repo> ~/Coding/t\n```\n"
+
+    fs = blockers.analyze(text, RepoFacts())
+
+    start = find(fs, "start_path_unreproducible")
+    assert start.state == "undetermined"
+    assert [e.line for e in start.evidence] == [6]
+
+
+def test_a_documented_option_placeholder_is_not_flagged():
+    # `--out <DIR>` 같은 옵션 자리표시자는 실행 단계가 아니라 사용법 표기다.
+    text = "# t\n\n## Usage\n\n```bash\ntool fetch URL --out <DIR>\n```\n"
+
+    fs = blockers.analyze(text, RepoFacts())
+
+    assert find(fs, "start_path_unreproducible").state == "absent"

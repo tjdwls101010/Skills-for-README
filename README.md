@@ -25,6 +25,8 @@ $ python3 scripts/audit_repo.py tjdwls101010/Ultra-Search
 
 Every judgment carries the line it came from. **There is no score** — structural metrics only get compared before and after.
 
+**The tooling reports in Korean.** The README it writes for you is in English by default (Korean on request); the audit output and the skill's own instructions are Korean. If that is a problem for you, this is not usable as-is.
+
 ## Requirements
 
 - **Claude Code.** This is a skill, not a standalone tool.
