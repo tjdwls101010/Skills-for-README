@@ -2,3 +2,5 @@
 .tmp/
 .codex-runs/
 .ultra-search/
+__pycache__/
+*.pyc
