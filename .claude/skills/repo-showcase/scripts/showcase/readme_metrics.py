@@ -15,9 +15,12 @@ INSTALL_WORDS = (
     "instalación", "installation", "instalação", "установка",
 )
 
-# 코드 블록으로 세지 않는 정보 펜스. Mermaid는 다이어그램이지 실행 가능한
-# 명령이 아니어서 "첫 코드 줄"을 앞당겨 오판을 만든다(코덱스 발견 버그 b).
-NON_CODE_LANGS = {"mermaid", "math", "latex", "diff", "text", "txt", "plaintext", "none"}
+# 코드 블록으로 세지 않는 펜스. 다이어그램과 수식뿐이다 — 실행 가능한 명령이
+# 아니어서 "첫 코드 줄"을 앞당겨 오판을 만든다.
+#
+# `text`·`txt`·`plaintext`는 여기 넣지 않는다. 명령과 그 출력을 보여 주는 가장
+# 흔한 표기이고, 제외했더니 실제 결과 증거가 통째로 사라졌다.
+NON_CODE_LANGS = {"mermaid", "math", "latex"}
 
 
 @dataclass

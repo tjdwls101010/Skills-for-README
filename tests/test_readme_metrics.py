@@ -72,3 +72,14 @@ def test_a_horizontal_rule_is_not_a_setext_heading():
     m = readme_metrics.analyze(text)
 
     assert [h.text for h in m.headings] == ["t"]
+
+
+def test_a_text_fence_is_a_code_block():
+    # ```text 는 명령과 출력을 보여 주는 가장 흔한 표기다. 다이어그램과 함께
+    # 제외했더니 실제 결과 증거가 통째로 사라졌다.
+    text = "# t\n\n```text\n$ tool run\n0 errors\n```\n"
+
+    m = readme_metrics.analyze(text)
+
+    assert [c.lang for c in m.code_blocks] == ["text"]
+    assert m.first_code_line == 3

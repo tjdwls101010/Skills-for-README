@@ -146,6 +146,17 @@ def _is_output_block(block: readme_metrics.CodeBlock) -> bool:
     return False
 
 
+def _introduced_as_result(lines: list[str], fence_line: int) -> bool:
+    """펜스 바로 앞 문장이 '이게 나올 결과다'라고 말하는가. 프롬프트 기호가
+    없는 출력 블록(JSON 응답 예시 등)은 이 소개 문장이 유일한 신호다."""
+    for i in range(fence_line - 2, max(fence_line - 5, 0) - 1, -1):
+        raw = lines[i] if 0 <= i < len(lines) else ""
+        if not raw.strip():
+            continue
+        return any(re.search(p, raw, re.I) for p in EXPECTED_RESULT_PATTERNS)
+    return False
+
+
 def find_evidence(text: str) -> list[Evidence]:
     out = []
     for im in readme_metrics.parse_images(text):
@@ -153,8 +164,9 @@ def find_evidence(text: str) -> list[Evidence]:
             continue
         kind = "gif" if im.url.lower().split("?")[0].endswith((".gif", ".webp", ".mp4", ".webm")) else "screenshot"
         out.append(Evidence(kind, im.line, im.alt or im.url))
+    lines = readme_metrics._code_masked_lines(text)
     for b in readme_metrics.parse_code_blocks(text):
-        if _is_output_block(b):
+        if _is_output_block(b) or _introduced_as_result(lines, b.line):
             out.append(Evidence("output_block", b.line, b.body.splitlines()[0] if b.body else ""))
     for i, raw in enumerate(readme_metrics._code_masked_lines(text), start=1):
         for m in re.finditer(r"\[([^\]]+)\]\((https?://[^)\s]+)", raw):

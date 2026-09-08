@@ -103,3 +103,14 @@ def test_a_tagline_inside_a_centered_html_header_is_the_one_liner():
 
     assert ol.text == "A cat(1) clone with syntax highlighting and Git integration."
     assert ol.alternatives == ["cat(1)"]
+
+
+def test_a_block_introduced_as_the_expected_output_is_result_evidence():
+    # 프롬프트 기호가 없어도, 바로 앞 문장이 이게 나올 결과라고 말하면 증거다.
+    text = ("# t\n\nA thing.\n\n"
+            "Expected output:\n\n"
+            '```json\n{"ok": true}\n```\n')
+
+    fs = first_screen.analyze(text)
+
+    assert [(e.kind, e.line) for e in fs.evidence] == [("output_block", 7)]
