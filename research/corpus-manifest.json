@@ -1,0 +1,971 @@
+{
+  "collected": "2026-09-08",
+  "purpose": "repo-showcase 스킬의 첫 화면 원칙이 근거로 삼는 README 코퍼스의 재현 명세. 원문은 커밋하지 않는다(.tmp/, gitignored). 이 매니페스트의 repo+sha로 언제든 재수집할 수 있다.",
+  "refetch": "gh api repos/<repo>/git/blobs/<readme_sha> --jq '.content' | base64 -d",
+  "limitations": [
+    "별 수는 노출·명성·시간이 섞인 값이고 방문자 전환 데이터가 아니다. 계층 간 차이는 상관이지 인과가 아니다.",
+    "인기가 문서 작업을 부르는 역인과(MSR 종단 연구)가 존재한다. 현재의 대형 레포 README는 인지도의 결과이지 원인이 아닐 수 있다.",
+    "low_traction과 classic_solo 초기는 시대(2026 vs 2016~2023)가 다르다. 관행 변화가 차이의 일부를 설명한다."
+  ],
+  "tiers": {
+    "mega": {
+      "definition": "10만 별 안팎의 대형 다중 기여자 프로젝트. 첫인상이 아니라 인지도로 방문자가 오는 대조군.",
+      "selection": "GitHub 검색 stars:>50000 중 프레임워크·플랫폼·앱을 언어별로 골라 8개.",
+      "exclusion": "awesome 목록, 학습 자료, 데이터셋 등 실행 가능한 산출물이 없는 레포."
+    },
+    "classic_solo": {
+      "definition": "1~2인이 시작해 널리 쓰이게 된 CLI/라이브러리. 이 스킬의 목표 형태에 가장 가까운 계층.",
+      "selection": "터미널 도구·라이브러리 중 창시자 1인이 초기 README를 쓴 것으로 확인되는 20개. 초기 README 재조회가 가능하도록 커밋 이력이 공개된 레포만.",
+      "exclusion": "회사가 처음부터 소유한 레포, 초기 이력이 squash로 사라진 레포."
+    },
+    "trendshift": {
+      "definition": "trendshift.io 첫 페이지에서 추출한 최근 급상승 레포. '지금 뜨는 것'의 README 형태.",
+      "selection": "2026-09-08 trendshift.io 첫 페이지 21개 전량(추가 선별 없음).",
+      "exclusion": "없음. 목록 전체를 그대로 씀."
+    },
+    "low_traction": {
+      "definition": "별 0~4개의 최근 개인 레포. 성진의 레포가 놓인 자리와 같은 조건의 비교군.",
+      "selection": "2026년 생성, 별 4개 이하, README 존재, 아카이브 아님. 에이전트 스킬·CLI·MCP 등 성진 레포와 같은 장르 위주로 20개.",
+      "exclusion": "README가 없거나 10줄 미만인 레포, 개인 dotfiles·연습용 레포, 아카이브된 레포."
+    },
+    "owner": {
+      "definition": "성진(tjdwls101010) 소유 공개 레포 중 실제 도구 4개. 개선 대상 자신.",
+      "selection": "Ultra-Search, Harness-Creator, Codex-in-Claude, Agentic-X.",
+      "exclusion": "실험·연습 레포."
+    }
+  },
+  "early_snapshots": {
+    "definition": "classic_solo 12개의 생성 후 3개월·9개월 시점 README. '인지도 이전의 형태'를 보기 위한 종단 표본.",
+    "selection": "classic_solo 중 생성일 이후 3개월/9개월 시점의 커밋이 남아 있는 12개. 각 시점에서 그 날짜 이전 마지막 README 커밋의 blob을 그대로 받음.",
+    "exclusion": "초기 커밋이 남아 있지 않거나(squash·재작성) 해당 시점에 README가 없던 레포.",
+    "limitation": "12개는 20개의 부분집합이므로 현재 표(20개)와 초기 표(12개)는 같은 모집단이 아니다. 줄수 비교는 같은 12개의 3개월·9개월·현재로만 해야 한다."
+  },
+  "repos": [
+    {
+      "repo": "facebook/react",
+      "tier": "mega",
+      "stars": 249651,
+      "created": "2013-05-24",
+      "language": "JavaScript",
+      "readme_path": "README.md",
+      "readme_sha": "88f8e827b0255cf639043c83833c7a0c40ec0991",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "vuejs/core",
+      "tier": "mega",
+      "stars": 54345,
+      "created": "2018-06-12",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "1a2519dcbff3b5abdb98171b5684c61e986eef9d",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "kubernetes/kubernetes",
+      "tier": "mega",
+      "stars": 126897,
+      "created": "2014-06-06",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "831bf0164f8e625d70c35a99ae23fd3522870f52",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "fastapi/fastapi",
+      "tier": "mega",
+      "stars": 102189,
+      "created": "2018-12-08",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "bd7e9e96b015b92f219c596710c96a89068488c8",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "astral-sh/uv",
+      "tier": "mega",
+      "stars": 89629,
+      "created": "2023-10-02",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "66caaf9ccc62add8c63de8e71184c9b7677377ad",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "immich-app/immich",
+      "tier": "mega",
+      "stars": 113630,
+      "created": "2022-02-03",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "ba774d44cdd7b9e9baed4cc4166d4c317e3ebae8",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "excalidraw/excalidraw",
+      "tier": "mega",
+      "stars": 131404,
+      "created": "2020-01-02",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "48b9d1de9fbb1c74406407e89e2471a01b1f28de",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "ggml-org/llama.cpp",
+      "tier": "mega",
+      "stars": 127478,
+      "created": "2023-03-10",
+      "language": "C++",
+      "readme_path": "README.md",
+      "readme_sha": "aae3bcd35ad9c2ba3e914750a36e125fec0b5355",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "sharkdp/bat",
+      "tier": "classic_solo",
+      "stars": 60388,
+      "created": "2018-04-21",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "8826d4e0dc8189ec247d96a18f9c5df057b5bcc7",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "BurntSushi/ripgrep",
+      "tier": "classic_solo",
+      "stars": 68085,
+      "created": "2016-03-11",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "54a7158a564faae22988da41efb1ef279e06fe5e",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "junegunn/fzf",
+      "tier": "classic_solo",
+      "stars": 82868,
+      "created": "2013-10-23",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "d4d183894d5a1d87e00beca7efcc850e6a88e48b",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "ajeetdsouza/zoxide",
+      "tier": "classic_solo",
+      "stars": 39257,
+      "created": "2020-03-05",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "448bfc562891df1972bfe83110236791dff4c69b",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "charmbracelet/gum",
+      "tier": "classic_solo",
+      "stars": 24348,
+      "created": "2022-06-10",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "ed90af80689fc2e24bf08179f96613e390766838",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "simonw/llm",
+      "tier": "classic_solo",
+      "stars": 12475,
+      "created": "2023-04-01",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "4821efeec41a224dd26a2f38650a54854b1b1f10",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "nvbn/thefuck",
+      "tier": "classic_solo",
+      "stars": 97773,
+      "created": "2015-04-08",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "8182035492ec293007a8ffcbb9fbb7236b0b0dac",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "httpie/cli",
+      "tier": "classic_solo",
+      "stars": 38487,
+      "created": "2012-02-25",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "13a3503b410d48b181e7103fb3a93fa006b1d928",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "jqlang/jq",
+      "tier": "classic_solo",
+      "stars": 35565,
+      "created": "2012-07-18",
+      "language": "C",
+      "readme_path": "README.md",
+      "readme_sha": "9ef09cc4f2071afadbe0bdb12a93d77ef710a553",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tldr-pages/tldr",
+      "tier": "classic_solo",
+      "stars": 63618,
+      "created": "2013-12-08",
+      "language": "Markdown",
+      "readme_path": "README.md",
+      "readme_sha": "0d0355718ab60aa9e9fdc2b4eccf4deba8dca75a",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "sindresorhus/got",
+      "tier": "classic_solo",
+      "stars": 14944,
+      "created": "2014-03-27",
+      "language": "TypeScript",
+      "readme_path": "readme.md",
+      "readme_sha": "3661d61f3be2bf941121a3f33a3cc7d5a11e997e",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "sharkdp/fd",
+      "tier": "classic_solo",
+      "stars": 44337,
+      "created": "2017-05-09",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "a259c1119e4afc4026ad75826e6b88ea3f7f583d",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "dandavison/delta",
+      "tier": "classic_solo",
+      "stars": 32115,
+      "created": "2019-06-24",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "38324fcbc257807ac4ccc0c7a9e58dd4e3e7cc82",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "eza-community/eza",
+      "tier": "classic_solo",
+      "stars": 23189,
+      "created": "2023-07-28",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "fea6e62bf331646c0159da0c5006d235bb827cc4",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "jesseduffield/lazygit",
+      "tier": "classic_solo",
+      "stars": 82132,
+      "created": "2018-05-19",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "5d5e47e11cfddc95dc0f5b02689cd4e2c3d40ca4",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "Textualize/rich",
+      "tier": "classic_solo",
+      "stars": 57342,
+      "created": "2019-11-10",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "a8475817e1d00628656acd0d7eab72df16f61371",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tiangolo/typer",
+      "tier": "classic_solo",
+      "stars": 19962,
+      "created": "2019-12-24",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "f2e09384e1ef4b53d9b69e819d47495df8686bbb",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "mitsuhiko/rye",
+      "tier": "classic_solo",
+      "stars": 14158,
+      "created": "2023-04-22",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "2bce18755353bad708ca2b5adffda68dff689d55",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "sirupsen/logrus",
+      "tier": "classic_solo",
+      "stars": 25748,
+      "created": "2013-10-16",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "b2ff7affcaeee822eb5f401086af11c52f46a864",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "spf13/cobra",
+      "tier": "classic_solo",
+      "stars": 44582,
+      "created": "2013-09-03",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "8416275f48ee051b7a6383fd87d660e796ef28f7",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tjdwls101010/Ultra-Search",
+      "tier": "owner",
+      "stars": 0,
+      "created": "2026-08-29",
+      "language": "HTML",
+      "readme_path": "README.md",
+      "readme_sha": "8361b19d334b212c2eb3656ad29e1598ad651d36",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tjdwls101010/Harness-Creator",
+      "tier": "owner",
+      "stars": 4,
+      "created": "2026-07-05",
+      "language": "HTML",
+      "readme_path": "README.md",
+      "readme_sha": "046b051b43aad22fb934c214abe93ca9caec44e4",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tjdwls101010/Codex-in-Claude",
+      "tier": "owner",
+      "stars": 0,
+      "created": "2026-07-25",
+      "language": "HTML",
+      "readme_path": "README.md",
+      "readme_sha": "c26990f6905aae26bf5221a160aed11c111aaa09",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tjdwls101010/Agentic-X",
+      "tier": "owner",
+      "stars": 1,
+      "created": "2026-07-05",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "fc4c03e176081aeee7fd855cadce263e1cc7da71",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "affaan-m/ECC",
+      "tier": "trendshift",
+      "stars": 253659,
+      "created": "2026-01-18",
+      "language": "JavaScript",
+      "readme_path": "README.md",
+      "readme_sha": "091836e33c6eb3bfdefa777914c5f6c8bf479d3b",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "Albert-Weasker/niubigeo",
+      "tier": "trendshift",
+      "stars": 1037,
+      "created": "2026-09-03",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "e40710bacc914697d1e4a875ee8d0fa3a0941486",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "arcboxlabs/arcbox",
+      "tier": "trendshift",
+      "stars": 4087,
+      "created": "2026-01-04",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "ba0f9e8cbd6904b00c803b7b63e5a90f4a4b997a",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "coldteadotai/pr-lens",
+      "tier": "trendshift",
+      "stars": 785,
+      "created": "2026-08-20",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "199a36b5faed3d9e26849fce9a36d3cc491353ed",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "doldecomp/melee",
+      "tier": "trendshift",
+      "stars": 1582,
+      "created": "2020-06-30",
+      "language": "C",
+      "readme_path": ".github/README.md",
+      "readme_sha": "756068cee3e1f4db4d1a4de03993a5d8e1083ba3",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "EvoMap/AutoResearch",
+      "tier": "trendshift",
+      "stars": 2201,
+      "created": "2026-08-15",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "7c91feabcf71a0b2e63220e12144481cb9075124",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "headroomlabs-ai/headroom",
+      "tier": "trendshift",
+      "stars": 70516,
+      "created": "2026-01-07",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "376a0d28c4feeb38323e193192b5732f6c7a7bf5",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "heygen-com/hyperframes",
+      "tier": "trendshift",
+      "stars": 47344,
+      "created": "2026-03-10",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "7bd074786d5946552e96b392adc87008c2fe269f",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "hoochanlon/fq-book",
+      "tier": "trendshift",
+      "stars": 5244,
+      "created": "2018-05-26",
+      "language": "Shell",
+      "readme_path": "README.md",
+      "readme_sha": "555b8eab0607df288166a33d9d5a8674e01837ab",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "jo-inc/camofox-browser",
+      "tier": "trendshift",
+      "stars": 10180,
+      "created": "2026-01-26",
+      "language": "JavaScript",
+      "readme_path": "README.md",
+      "readme_sha": "14d205eca02f29bc091b27a568bfe20e328da6b0",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "lightpanda-io/browser",
+      "tier": "trendshift",
+      "stars": 35120,
+      "created": "2023-02-07",
+      "language": "Zig",
+      "readme_path": "README.md",
+      "readme_sha": "264ae424d3788e7b714ed331fb2d61e387c55074",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "microsoft/markitdown",
+      "tier": "trendshift",
+      "stars": 181281,
+      "created": "2024-11-13",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "62d526f681994d2725f462f6b88ba3cef9fcd70d",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "microsoft/tgrep",
+      "tier": "trendshift",
+      "stars": 1637,
+      "created": "2026-04-03",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "af8cbf5f9c965c02832cf8a9a5cb0db116511dbd",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "mksglu/context-mode",
+      "tier": "trendshift",
+      "stars": 21194,
+      "created": "2026-02-23",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "b796169524473691594af24995d21ca94027f7c7",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "MoonTechLab/LunaTV",
+      "tier": "trendshift",
+      "stars": 10075,
+      "created": "2025-08-12",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "ca35b810b32b04ec01140b9632e54afe2ccbdb59",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "redhat-et/ripwire",
+      "tier": "trendshift",
+      "stars": 1623,
+      "created": "2026-07-29",
+      "language": "C++",
+      "readme_path": "README.md",
+      "readme_sha": "64f45155924c7e2cb5a8039663ef75d12ec57161",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "TauricResearch/TradingAgents",
+      "tier": "trendshift",
+      "stars": 103224,
+      "created": "2024-12-28",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "505b69df46ce78e6bb0b22088a5b9c380cbc7a39",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "Tencent/teamai-cli",
+      "tier": "trendshift",
+      "stars": 2129,
+      "created": "2026-04-27",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "f93bc1fc2ced27c35950f89ff9f270a254ef09c1",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "tigerless-labs/autoharness",
+      "tier": "trendshift",
+      "stars": 2944,
+      "created": "2026-06-09",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "046ee61703b84bc8d387188dfdc6735b86ec4b63",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "vastsa/PI-Desktop",
+      "tier": "trendshift",
+      "stars": 1034,
+      "created": "2023-03-22",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "940c2dc6c5e149f95128ae386d3b40696780c708",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "webadderallorg/Recordly",
+      "tier": "trendshift",
+      "stars": 25724,
+      "created": "2026-03-12",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "121ef9343266d1ca66ec20df5b3254fd2768ee3e",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "torisKR/toris-agent",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-07-28",
+      "language": "Shell",
+      "readme_path": "README.md",
+      "readme_sha": "ae1a337697d41d165faa87b53f159aae180f7b00",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "arsen-ask-lx/Agent_Quality_Kit",
+      "tier": "low_traction",
+      "stars": 2,
+      "created": "2026-09-02",
+      "language": "JavaScript",
+      "readme_path": "README.md",
+      "readme_sha": "c4dbed0842847a358ee34edd497ec0ce01e02309",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "undervolter/dh-fwd",
+      "tier": "low_traction",
+      "stars": 4,
+      "created": "2026-08-11",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "57adff9dec36d9fd1654a0133d90d9b7af951845",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "vikasagarwal101/scoutline",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-06-28",
+      "language": "JavaScript",
+      "readme_path": "README.md",
+      "readme_sha": "a678d4b6c215f659e53f2ff1eae1c15e188a92b0",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "dreikanter/notes",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-03-12",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "6e3ac8fbcf0047a2ceb43029f81514f1b623fa63",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "fysoul17/devlyn-cli",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-02-05",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "37444a83863097fd2bb61151462ddfd4b29821d0",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "elisaul77/auto-experto",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-09-08",
+      "language": "Shell",
+      "readme_path": "README.md",
+      "readme_sha": "3d540c7b3eaca993a294f6e88d2467658d9e184e",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "hanrry2323/CCC",
+      "tier": "low_traction",
+      "stars": 2,
+      "created": "2026-07-01",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "1e9459be34aaab9944f8df3f5988ae1c9d06d7c7",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "marcoalfa30/claude-skills-vibe-toolkit",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-05-24",
+      "language": "HTML",
+      "readme_path": "README.md",
+      "readme_sha": "a7404cea1859f3b410bc9b981f34040ca3a1f3c9",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "21StarkCom/stark-skills",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-03-16",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "13add86e6f28faff10871977c814630c9c6a5d72",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "dominiquevienne/claude-job-hunt",
+      "tier": "low_traction",
+      "stars": 4,
+      "created": "2026-08-26",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "209dbdd023b55de3bb4efcff7edddd6651c3ca28",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "Alpha-30-creator/agent-sync",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-08-25",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "7fa8f2b11922f29b8c1e16e1f1c983400db33da6",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "memori-ai/mcp-ms-loop",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-05-19",
+      "language": "TypeScript",
+      "readme_path": "README.md",
+      "readme_sha": "37900bd583cfb50c644d48f3b33257938e0f1d7c",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "adrianov/rrubocop",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-08-31",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "51367b57e69876879a4ec65c8000681ae147a897",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "woahwhattheheck/commons",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-08-17",
+      "language": "HTML",
+      "readme_path": "README.md",
+      "readme_sha": "fd0cc466be9f8f0cd57633019495de9f82c8ed6b",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "matssun/mcp-re",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-06-04",
+      "language": "Rust",
+      "readme_path": "README.md",
+      "readme_sha": "31b2f7e8761d32ff73a5fa427be48aec28321744",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "Quilzo/Quilzo",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-08-14",
+      "language": "Go",
+      "readme_path": "README.md",
+      "readme_sha": "e4d2963de8fc7e24bdd46a503f10f83a573b9ced",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "itswl/hookstack",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-08-06",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "eff2a1f20420816ce88c4452b2301bf8acab2521",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "namakoo-dev/ailine",
+      "tier": "low_traction",
+      "stars": 0,
+      "created": "2026-08-10",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "3a62159aaf405da2dbce99c7ccb288f956e65dc4",
+      "fetched": "2026-09-08"
+    },
+    {
+      "repo": "WickTech/autoflow",
+      "tier": "low_traction",
+      "stars": 1,
+      "created": "2026-06-03",
+      "language": "Python",
+      "readme_path": "README.md",
+      "readme_sha": "bc7a927d2a2b7279f0623225e2ae8a1216cae23a",
+      "fetched": "2026-09-08"
+    }
+  ],
+  "early_repos": [
+    {
+      "repo": "sharkdp/bat",
+      "months_after_creation": 3,
+      "commit_sha": "6b57f4eebc7f1182cc7aceddfc8a3e23e80337ac",
+      "date": "2018-07-17",
+      "lines": 203
+    },
+    {
+      "repo": "sharkdp/bat",
+      "months_after_creation": 9,
+      "commit_sha": "3324505383c9de3a1bbbc666f592c46011571323",
+      "date": "2019-01-16",
+      "lines": 475
+    },
+    {
+      "repo": "BurntSushi/ripgrep",
+      "months_after_creation": 3,
+      "commit_sha": "8d9d60294562bdf37b8a61661c8874d60026f815",
+      "date": "2016-04-04",
+      "lines": 5
+    },
+    {
+      "repo": "BurntSushi/ripgrep",
+      "months_after_creation": 9,
+      "commit_sha": "d66812102b6184a0dd7d168a3afe2dbf209841cb",
+      "date": "2016-12-06",
+      "lines": 326
+    },
+    {
+      "repo": "junegunn/fzf",
+      "months_after_creation": 3,
+      "commit_sha": "13cb198b5cc0ae9322afca293a185bf157ad1bdc",
+      "date": "2014-01-14",
+      "lines": 333
+    },
+    {
+      "repo": "junegunn/fzf",
+      "months_after_creation": 9,
+      "commit_sha": "22989b0488fcb384d8e96a7bb610957a2482389b",
+      "date": "2014-07-18",
+      "lines": 566
+    },
+    {
+      "repo": "ajeetdsouza/zoxide",
+      "months_after_creation": 3,
+      "commit_sha": "922e2e4847518666ce40112e3a34ba48f766edf2",
+      "date": "2020-05-29",
+      "lines": 210
+    },
+    {
+      "repo": "ajeetdsouza/zoxide",
+      "months_after_creation": 9,
+      "commit_sha": "753d95e5a4061954bbcfa6a1490098283c091325",
+      "date": "2020-11-27",
+      "lines": 219
+    },
+    {
+      "repo": "charmbracelet/gum",
+      "months_after_creation": 3,
+      "commit_sha": "aa7683f5e03619ec3daeac8d98ff1ad1809872da",
+      "date": "2022-09-08",
+      "lines": 510
+    },
+    {
+      "repo": "charmbracelet/gum",
+      "months_after_creation": 9,
+      "commit_sha": "1267b7a78e290658012c1dc3c2f130448b366e07",
+      "date": "2023-03-06",
+      "lines": 507
+    },
+    {
+      "repo": "simonw/llm",
+      "months_after_creation": 3,
+      "commit_sha": "5e056fad8a53b7e5065b83712a91e652210c34dd",
+      "date": "2023-06-26",
+      "lines": 62
+    },
+    {
+      "repo": "simonw/llm",
+      "months_after_creation": 9,
+      "commit_sha": "95597cc8f5c1612428fa4ab321afe2f173ac897f",
+      "date": "2023-12-18",
+      "lines": 117
+    },
+    {
+      "repo": "dandavison/delta",
+      "months_after_creation": 3,
+      "commit_sha": "dfb2e9f958ce16749f60a9d6890326cf0a000e8f",
+      "date": "2019-09-21",
+      "lines": 210
+    },
+    {
+      "repo": "dandavison/delta",
+      "months_after_creation": 9,
+      "commit_sha": "3a32a0929f89188e474ced711756435b5ed16898",
+      "date": "2020-03-04",
+      "lines": 294
+    },
+    {
+      "repo": "jesseduffield/lazygit",
+      "months_after_creation": 3,
+      "commit_sha": "0f145093feee545f694c0969819a74d6b223c551",
+      "date": "2018-08-17",
+      "lines": 121
+    },
+    {
+      "repo": "jesseduffield/lazygit",
+      "months_after_creation": 9,
+      "commit_sha": "c1019934058d92c5edd2d1829b543c6d2ed1ace9",
+      "date": "2019-02-11",
+      "lines": 148
+    },
+    {
+      "repo": "Textualize/rich",
+      "months_after_creation": 3,
+      "commit_sha": "6261ca23bf838abaa0fa6478dc81ccb18a6949c0",
+      "date": "2020-02-04",
+      "lines": 203
+    },
+    {
+      "repo": "Textualize/rich",
+      "months_after_creation": 9,
+      "commit_sha": "236338a76b77395bbc40f97b5d1f39bddd622f8c",
+      "date": "2020-08-06",
+      "lines": 287
+    },
+    {
+      "repo": "sharkdp/fd",
+      "months_after_creation": 3,
+      "commit_sha": "2d1d24c38c80dbf2ee9f83e2206175ab140c05cf",
+      "date": "2017-08-01",
+      "lines": 85
+    },
+    {
+      "repo": "sharkdp/fd",
+      "months_after_creation": 9,
+      "commit_sha": "b4d39270d65eb28e7a1586f5da4ae8ac8bc5a59b",
+      "date": "2018-01-29",
+      "lines": 356
+    },
+    {
+      "repo": "eza-community/eza",
+      "months_after_creation": 3,
+      "commit_sha": "4eb4b234e802543ee6445227ee39b22173ad9b81",
+      "date": "2023-10-26",
+      "lines": 428
+    },
+    {
+      "repo": "eza-community/eza",
+      "months_after_creation": 9,
+      "commit_sha": "8afb5cc2859eb763973da14bf33d4a13ea5dd2eb",
+      "date": "2024-04-22",
+      "lines": 165
+    },
+    {
+      "repo": "mitsuhiko/rye",
+      "months_after_creation": 3,
+      "commit_sha": "59c7535f8a8c3a3bc25ca06b1e3f16d27a14d39a",
+      "date": "2023-07-19",
+      "lines": 161
+    },
+    {
+      "repo": "mitsuhiko/rye",
+      "months_after_creation": 9,
+      "commit_sha": "910a4f6245377581fe30be025d05cfaa8cbc644e",
+      "date": "2024-01-17",
+      "lines": 187
+    }
+  ],
+  "guides": [
+    "choosealicense.com.md",
+    "docs.divio.com-documentation-system.md",
+    "docs.github.com-en-code-security-getting-started-adding-a-security-policy-to-your-repository.md",
+    "docs.github.com-en-communities-setting-up-your-project-for-healthy-contributions-about-community-profiles-for-p-9c2f551b.md",
+    "docs.github.com-en-communities-setting-up-your-project-for-healthy-contributions-adding-a-code-of-conduct-to-yo-ff49f6fd.md",
+    "docs.github.com-en-communities-setting-up-your-project-for-healthy-contributions-adding-a-license-to-a-repository.md",
+    "docs.github.com-en-communities-setting-up-your-project-for-healthy-contributions-setting-guidelines-for-reposit-2ad4a9a7.md",
+    "docs.github.com-en-repositories-managing-your-repositorys-settings-and-features-customizing-your-repository-abo-17c79ff5.md",
+    "docs.github.com-en-repositories-managing-your-repositorys-settings-and-features-customizing-your-repository-cla-c6df067d.md",
+    "docs.github.com-en-repositories-managing-your-repositorys-settings-and-features-customizing-your-repository-cus-e3aff646.md",
+    "docs.github.com-en-repositories-releasing-projects-on-github-about-releases.md",
+    "github.com-RichardLitt-standard-readme-blob-master-spec.md.md",
+    "github.com-matiassingers-awesome-readme-blob-master-readme.md.md",
+    "github.com-othneildrew-Best-README-Template-blob-main-BLANK_README.md.md",
+    "news.ycombinator.com-showhn.html.md",
+    "opensource.guide-building-community.md",
+    "opensource.guide-finding-users.md",
+    "opensource.guide-starting-a-project.md",
+    "tom.preston-werner.com-2010-08-23-readme-driven-development.html.md",
+    "trendshift.io-insights.md",
+    "trendshift.io-stats.md",
+    "trendshift.io-topics.md",
+    "www.contributor-covenant.org-version-2-1-code_of_conduct.md",
+    "www.makeareadme.com.md"
+  ]
+}
